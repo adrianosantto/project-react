@@ -1,8 +1,30 @@
 const express = require('express')
 const app = express();
 
-app.get('/', function (req, res) {
-  res.send('É nois queiroz!')
+app.use(express.json());
+
+app.get('/usuarios', function (req, res) {
+  res.json({
+    erro: false,
+    messagem: "Listar Usuários!"
+  });
+});
+
+app.post('/login', function (req, res) {
+  //console.log(req.body.senha);
+  if (req.body.usuario === 'Lunasantto@gmail.com' && req.body.senha=== '123456') {
+    
+    res.json({
+      erro: false,
+      messagem: "Login válido!",
+      dados: req.body
+    });
+
+  }
+  res.json({
+    erro: true,
+    messagem: "Login incorreto"
+  });
 });
  
 app.listen(8080, function(){
