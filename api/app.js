@@ -1,5 +1,7 @@
 const express = require('express')
 const app = express();
+const jwt = require('jsonwebtoken');
+require('dotenv').config();
 
 app.use(express.json());
 
@@ -13,11 +15,16 @@ app.get('/usuarios', function (req, res) {
 app.post('/login', function (req, res) {
   //console.log(req.body.senha);
   if (req.body.usuario === 'Lunasantto@gmail.com' && req.body.senha=== '123456') {
-    
+    const{id} = 1;
+    var privateKey = process.env.SECRET;
+    var token = jwt.sign({id}, privateKey,{
+      //espirar(expiresIn) em 10 min
+      expiresIn:600
+    })
     res.json({
       erro: false,
       messagem: "Login válido!",
-      dados: req.body
+      token
     });
 
   }

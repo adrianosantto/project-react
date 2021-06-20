@@ -10,3 +10,10 @@ Intalar módulo para reinicializar o servidor (-g: global)
 
 Rodar o projeto usando nodemon
 ### nodemon app.js
+
+Instalar a dependencia para JWT 
+### npm install --save jsonwebtoken
+### generate plus codigo hexadecimal
+
+Instalar a dependencia para dotenv (genrenciar variáveis de ambiente)
+### npm install --save dotenv
