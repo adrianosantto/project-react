@@ -1,12 +1,13 @@
 const express = require('express');
 const app = express();
 const jwt = require('jsonwebtoken');
-const bcrypt = require('bcrypt');
+const bcrypt = require ('bcrypt');
 require('dotenv').config();
 const cors = require('cors');
 const {eAdmin} = require('./middlewares/auth');
-const Users = require('./models/Users');
-const User = require('./models/Users');
+const Usuario = require('./models/Users');
+//const { where } = require('sequelize/types');
+
 
 app.use(express.json());
 
@@ -17,68 +18,116 @@ app.use((req, res, next) => {
   app.use(cors());
   next();
 });
-// teste de conexão "const db = require("./models/db");"
 
+//56 minutos
 
-
-app.get('/usuarios', eAdmin, function (req, res) {
-  return res.json({
-    erro: false,
-    messagem: "Listar Usuários!"
-  });
-});
-
-app.post('/usuarios', async (req, res) => {
-
-var dados = req.body;
-
-dados.pass = await bcrypt.hash(dados.pass, 8)
-
-await User.create(dados).then(function(){
-
-  return res.json({
-    erro: false,
-    messagem: "OK"
-  });
-
-}).catch(function(){
-  return res.json({
-    erro: true,
-    messagem: "Usuario incorreto"
+app.get('/usuarios', eAdmin, async function(req, res){
+  await Usuario.findAll({order: [['id', 'DESC']]}).then(function(usuarios){
+      return res.json({
+        erro: false,
+        usuarios
+    });
+  }).catch(function(){
+    return res.json({
+      erro: true,
+      messagem: "usuário não encontrado"
     });
   });
 });
-
-/*return res.json ({
-  dados: req.body
+app.get('/usuario/:id', eAdmin, async(req,res) =>{
+ await Usuario.findByPk(req.params.id).then(usuario =>{
+  return res.json({
+    erro: false,
+    usuario
   });
-});*/
 
-app.post('/login', function (req, res) {
-//falata validar o usuário 32.50 mts
+ }).catch(function(){
+  return res.json({
+    erro: true,
+    messagem: "usuário não encontrado"
+  });
+ });
+});
 
-  //console.log(req.body.senha);
-  if (req.body.usuario === 'Lunasantto@gmail.com' && req.body.senha=== '123456') {
-    const{id} = 1;
-    var privateKey = process.env.SECRET;
-    var token = jwt.sign({id}, privateKey,{
-      //espirar(expiresIn) em 10 min
-      //expiresIn:600
-      expiresIn:'7d' //7 dias
-    })
+app.post('/usuario', async (req, res) => {
+  var dados = req.body;
+  dados.pass = await bcrypt.hash(dados.pass, 8);
+
+
+  await Usuario.create(dados).then(function(){
     return res.json({
       erro: false,
-      messagem: "Login válido!",
-      token
+      messagem: "usuário cadastrado"
     });
 
-  }
-  return res.json({
-    erro: true,
-    messagem: "Login incorreto"
+  }).catch(function(){
+    return res.json({
+      erro: true,
+      messagem: "usuário nao foi cadastrado"
+    });
+
   });
+});
+app.put('/usuario', eAdmin, async (req, res)=>{
+  var dados = req.body;
+  dados.pass = await bcrypt.hash(dados.pass,8);
+
+  await Usuario.update(dados, {where: {id: dados.id}}).then(function(){
+      return res.json({
+      erro: false,
+      messagem: "Usuário editado com sucesso"
+    });
+  }).catch(function(){
+    return res.json({
+      erro: true,
+      messagem: "Não foi possível editar o Usuário"
+      });
+    });
+  });
+
+  app.delete('/usuario/:id',eAdmin, async (req, res) => {
+    await Usuario.destroy({where: {id: req.params.id}}).then(function(){
+      return res.json({
+        erro: false,
+        messagem: "Usuário exluido com sucesso"
+        });
+    }).catch(function(){
+
+      return res.json({
+        erro: true,
+        messagem: "Não conseguimos exluir o usuário"
+        });
+     });
+  });
+
+app.post('/login', async (req, res) => {
+  //console.log(req.body);
+
+  const usuario = await Usuario.findOne({where: {email: req.body.usuario}});
+  if (usuario === null){
+
+    return res.json({
+      erro: true,
+      messagem: "Usuario ou senha incorretos."
+    });
+  }
+  if(!(await bcrypt.compare(req.body.pass, usuario.pass))){
+    return res.json({
+      erro: true,
+      messagem: "Usuário ou senha estão Incorretos."
+    });
+  }
+    var token = jwt.sign({id: usuario.id}, process.env.SECRET, {
+     expiresIn: '7d'
+
+    });
+    return res.json({
+      erro: false,
+      messagem: "login sucesso!",
+      token
+    });
 });
 
 app.listen(8080, function(){
-  console.log("servidor porta 8080: http://localhost:8080/");
+  console.log("servidor porta 8080: http://localhost:8080");
 });

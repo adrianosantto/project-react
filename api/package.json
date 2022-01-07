@@ -14,8 +14,10 @@
     "dotenv": "^10.0.0",
     "express": "^4.17.1",
     "jsonwebtoken": "^8.5.1",
-    "mysql2": "^2.2.5",
-    "nodemon": "^2.0.12",
-    "sequelize": "^6.6.5"
+    "mysql2": "^2.3.2",
+    "nodemon": "^2.0.15",
+    "sequelize": "^6.7.0",
+    "to": "^0.2.9",
+    "update": "^0.7.4"
   }
 }

@@ -1,7 +1,7 @@
 const Sequelize = require('sequelize');
 const db = require('./db');
 
-const User = db.define('users', {
+const Usuario = db.define('users', {
   id: {
     type: Sequelize.INTEGER,
     autoIncrement:true,
@@ -18,10 +18,9 @@ const User = db.define('users', {
   },
   pass: {
     type: Sequelize.STRING,
-    allowNull: true
+    allowNull: false
   }
 });
+Usuario.sync();
 
-User.sync();
-
-module.exports = User;
+module.exports = Usuario;
